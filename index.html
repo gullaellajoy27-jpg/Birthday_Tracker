@@ -1,0 +1,1738 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Tracker</title>
+
+<style>
+:root {
+    --primary:#667de0;
+    --secondary:#9a79dc;
+    --bg:#f5f6fc;
+    --surface:#ffffff;
+    --text:#28334a;
+    --muted:#8791a5;
+    --border:#edf0f6;
+    --sidebar:#29365d;
+    --pink:#f18cae;
+    --shadow:0 4px 15px #00000008;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    transition:.2s;
+}
+
+button,input,select{font-family:inherit}
+button{cursor:pointer;border:0}
+
+.container{display:flex;min-height:100vh}
+
+.sidebar{
+    width:245px;
+    background:var(--sidebar);
+    color:white;
+    padding:27px 19px;
+    flex-shrink:0;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:bold;
+    margin-bottom:38px;
+}
+
+.logo span{color:#ffb7cb}
+
+.nav-title{
+    font-size:11px;
+    color:#aebbdc;
+    margin:22px 10px 12px;
+    letter-spacing:1px;
+}
+
+.nav-item{
+    padding:13px;
+    border-radius:10px;
+    margin-bottom:7px;
+    color:#dce3f8;
+    font-size:14px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.nav-item:hover,.nav-item.active{
+    background:#46588b;
+    color:white;
+}
+
+.main{
+    flex:1;
+    padding:30px;
+    min-width:0;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:26px;
+}
+
+.header h1{font-size:27px}
+.header p{color:var(--muted);font-size:13px;margin-top:6px}
+
+.today{
+    background:var(--surface);
+    padding:12px 16px;
+    border-radius:11px;
+    box-shadow:var(--shadow);
+    font-size:13px;
+}
+
+.page{display:none}
+.page.active{display:block}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:17px;
+    margin-bottom:23px;
+}
+
+.stat-card{
+    background:var(--surface);
+    padding:22px;
+    border-radius:15px;
+    box-shadow:var(--shadow);
+}
+
+.stat-card .label{color:var(--muted);font-size:13px}
+.stat-card h2{font-size:30px;margin-top:10px}
+.stat-card.blue{border-left:5px solid var(--primary)}
+.stat-card.pink{border-left:5px solid var(--pink)}
+.stat-card.purple{border-left:5px solid var(--secondary)}
+
+.next-card{
+    background:linear-gradient(120deg,var(--primary),var(--secondary));
+    color:white;
+    border-radius:17px;
+    padding:27px;
+    margin-bottom:23px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.next-badge{
+    background:#ffffff30;
+    padding:8px 13px;
+    border-radius:20px;
+    font-size:11px;
+}
+
+.next-card h2{font-size:24px;margin:14px 0 8px}
+.next-card p{font-size:13px;color:#eeeaff}
+
+.countdown{
+    font-size:38px;
+    font-weight:bold;
+    text-align:center;
+}
+.countdown small{display:block;font-size:12px;font-weight:normal}
+
+.content-card{
+    background:var(--surface);
+    border-radius:16px;
+    padding:24px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+}
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.section-header h2{font-size:19px}
+
+.primary-btn{
+    background:var(--primary);
+    color:white;
+    padding:11px 16px;
+    border-radius:9px;
+    font-weight:600;
+}
+
+.primary-btn:hover{filter:brightness(.92)}
+
+.secondary-btn{
+    background:#eef0fa;
+    color:var(--text);
+    padding:10px 14px;
+    border-radius:9px;
+}
+
+.danger-btn{
+    background:#fff0f2;
+    color:#d65d76;
+    padding:10px 14px;
+    border-radius:9px;
+}
+
+.controls{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+}
+
+.controls input{
+    flex:1;
+    min-width:180px;
+}
+
+input,select{
+    padding:11px 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    outline:none;
+    background:var(--surface);
+    color:var(--text);
+    width:100%;
+}
+
+input:focus,select:focus{border-color:var(--primary)}
+
+.birthday-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 8px;
+    border-bottom:1px solid var(--border);
+    gap:12px;
+}
+
+.birthday-info{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+}
+
+.avatar{
+    width:48px;
+    height:48px;
+    border-radius:13px;
+    background:#f0edff;
+    display:grid;
+    place-items:center;
+    font-size:24px;
+    flex-shrink:0;
+    overflow:hidden;
+}
+
+.avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.person-name{font-size:14px;font-weight:650}
+.person-date{font-size:12px;color:var(--muted);margin-top:5px}
+
+.right-info{text-align:right;white-space:nowrap}
+.days{font-size:13px;color:var(--primary);font-weight:bold}
+.age{font-size:11px;color:var(--muted);margin-top:5px}
+
+.actions{display:flex;gap:5px;margin-left:5px}
+.action-btn{
+    padding:8px;
+    border-radius:7px;
+    background:#f0f2f9;
+    color:#64718b;
+}
+.action-btn:hover{background:#e5e8f5}
+.delete-btn{color:#df6579}
+
+.empty{
+    text-align:center;
+    padding:35px 10px;
+    color:var(--muted);
+}
+
+.empty div{font-size:38px;margin-bottom:10px}
+
+/* UPCOMING */
+
+.upcoming-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:15px;
+}
+
+.upcoming-card{
+    border:1px solid var(--border);
+    padding:18px;
+    border-radius:13px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.upcoming-card .avatar{width:45px;height:45px}
+.upcoming-card .days{margin-top:7px}
+
+/* CALENDAR */
+
+.calendar-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.calendar-top h2{font-size:21px}
+
+.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    gap:5px;
+}
+
+.calendar-day-name{
+    text-align:center;
+    padding:10px 0;
+    font-size:12px;
+    color:var(--muted);
+    font-weight:bold;
+}
+
+.calendar-day{
+    min-height:95px;
+    background:var(--bg);
+    border-radius:9px;
+    padding:8px;
+    border:1px solid transparent;
+    overflow:hidden;
+}
+
+.calendar-day.other{opacity:.35}
+.calendar-day.today-day{border:2px solid var(--primary)}
+.calendar-day.selected{background:#e9edff;border-color:var(--primary)}
+
+.day-number{font-size:12px;font-weight:bold}
+
+.calendar-event{
+    margin-top:6px;
+    background:var(--primary);
+    color:white;
+    font-size:10px;
+    padding:4px;
+    border-radius:5px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.calendar-more{
+    font-size:10px;
+    color:var(--muted);
+    margin-top:4px;
+}
+
+.selected-date{
+    background:var(--bg);
+    padding:15px;
+    border-radius:11px;
+    margin-top:17px;
+}
+
+/* NOTIFICATIONS */
+
+.notice{
+    padding:13px 16px;
+    border-radius:10px;
+    background:#fff3d9;
+    color:#8b641a;
+    margin-bottom:15px;
+    font-size:13px;
+}
+
+.notice.success{background:#e6f8ed;color:#28744a}
+.notice.info{background:#eaf0ff;color:#405ba9}
+
+/* THEMES */
+
+.theme-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
+    gap:14px;
+}
+
+.theme-option{
+    padding:15px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    text-align:center;
+    background:var(--surface);
+}
+
+.theme-option.selected{border-color:var(--primary)}
+.theme-colors{display:flex;justify-content:center;gap:5px;margin-bottom:10px}
+.theme-dot{width:22px;height:22px;border-radius:50%}
+
+/* MODAL */
+
+.modal-bg{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#18213b85;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+    z-index:20;
+}
+
+.modal{
+    background:var(--surface);
+    padding:25px;
+    border-radius:17px;
+    width:100%;
+    max-width:440px;
+    max-height:90vh;
+    overflow-y:auto;
+}
+
+.modal h2{margin-bottom:20px;font-size:21px}
+.form-group{margin-bottom:15px}
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:7px;
+}
+
+.form-group input{width:100%}
+
+.modal-buttons{display:flex;gap:10px;margin-top:20px}
+.modal-buttons button{flex:1;padding:12px;border-radius:9px;font-weight:bold}
+
+.photo-preview{
+    width:85px;
+    height:85px;
+    border-radius:15px;
+    background:#f0edff;
+    overflow:hidden;
+    display:grid;
+    place-items:center;
+    font-size:35px;
+    margin-bottom:10px;
+}
+
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+
+.file-label{
+    display:inline-block;
+    padding:9px 12px;
+    border-radius:8px;
+    background:#eef0fa;
+    font-size:12px;
+    cursor:pointer;
+}
+
+#photo{display:none}
+
+.toast{
+    position:fixed;
+    bottom:22px;
+    right:22px;
+    background:#29365d;
+    color:white;
+    padding:14px 20px;
+    border-radius:10px;
+    z-index:50;
+    display:none;
+    box-shadow:var(--shadow);
+    max-width:calc(100vw - 44px);
+}
+
+@media(max-width:850px){
+    .sidebar{width:190px}
+    .main{padding:20px}
+}
+
+@media(max-width:650px){
+    .sidebar{display:none}
+    .main{padding:16px 12px}
+    .stats{grid-template-columns:1fr}
+    .birthday-item{flex-wrap:wrap}
+    .calendar-day{min-height:65px;padding:4px}
+    .calendar-event{font-size:8px;padding:3px}
+    .calendar-day-name{font-size:10px}
+    .content-card{padding:16px}
+    .right-info{margin-left:auto}
+    .actions{margin-left:auto}
+}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#667de0">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+
+<body>
+
+<div class="container">
+
+<aside class="sidebar">
+    <div class="logo">🎂 Birthday<span>List</span></div>
+
+    <div class="nav-title">MAIN MENU</div>
+    <div class="nav-item active" data-page="dashboard">🏠 Dashboard</div>
+    <div class="nav-item" data-page="calendar">📅 Birthday Calendar</div>
+    <div class="nav-item" data-page="upcoming">🎉 Upcoming Birthdays</div>
+    <div class="nav-item" data-page="all">👥 All Birthdays</div>
+
+    <div class="nav-title">PREFERENCES</div>
+    <div class="nav-item" data-page="themes">🎨 Color Themes</div>
+    <div class="nav-item" data-page="backup">💾 Backup & Restore</div>
+</aside>
+
+<main class="main">
+
+<header class="header">
+    <div>
+        <h1 id="pageTitle">Birthday Dashboard 🎂</h1>
+        <p>Never forget someone's special day.</p>
+    </div>
+    <div class="today" id="today"></div>
+</header>
+
+<div id="noticeArea"></div>
+
+<!-- DASHBOARD -->
+
+<section class="page active" id="dashboard">
+
+    <div class="stats">
+        <div class="stat-card blue">
+            <div class="label">Total Birthdays</div>
+            <h2 id="total">0</h2>
+        </div>
+
+        <div class="stat-card pink">
+            <div class="label">Birthdays This Month</div>
+            <h2 id="thisMonth">0</h2>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="label">Birthdays Today</div>
+            <h2 id="todayCount">0</h2>
+        </div>
+    </div>
+
+    <div class="next-card">
+        <div>
+            <span class="next-badge">⭐ NEXT UPCOMING BIRTHDAY</span>
+            <h2 id="nextName">No birthdays yet</h2>
+            <p id="nextDate">Add a birthday to get started.</p>
+        </div>
+
+        <div class="countdown">
+            <span id="nextDays">--</span>
+            <small>Days left</small>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="section-header">
+            <h2>🔔 Birthday Notifications</h2>
+            <button class="secondary-btn" onclick="enableNotifications()">
+                Enable Browser Alerts
+            </button>
+        </div>
+        <div id="notificationList"></div>
+    </div>
+
+    <div class="content-card">
+        <div class="section-header">
+            <h2>🎈 Next 5 Birthdays</h2>
+            <button class="secondary-btn" onclick="showPage('upcoming')">
+                View All →
+            </button>
+        </div>
+        <div id="dashboardUpcoming"></div>
+    </div>
+
+    <div class="content-card">
+        <div class="section-header">
+            <h2>👥 Birthday List</h2>
+            <button class="primary-btn" onclick="openModal()">
+                + Add Birthday
+            </button>
+        </div>
+        <div class="controls">
+            <input id="searchDashboard" placeholder="🔍 Search a name..." oninput="renderList('dashboardList','searchDashboard')">
+        </div>
+        <div id="dashboardList"></div>
+    </div>
+
+</section>
+
+<!-- CALENDAR -->
+
+<section class="page" id="calendar">
+    <div class="content-card">
+        <div class="calendar-top">
+            <button class="secondary-btn" onclick="changeMonth(-1)">← Previous</button>
+            <h2 id="calendarMonth"></h2>
+            <button class="secondary-btn" onclick="changeMonth(1)">Next →</button>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+
+        <div class="selected-date" id="selectedDate">
+            Select a date to view birthdays.
+        </div>
+    </div>
+</section>
+
+<!-- UPCOMING -->
+
+<section class="page" id="upcoming">
+    <div class="content-card">
+        <div class="section-header">
+            <h2>🎉 Upcoming Birthdays</h2>
+            <button class="primary-btn" onclick="openModal()">+ Add Birthday</button>
+        </div>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:20px">
+            Automatically sorted from the nearest birthday to the farthest.
+        </p>
+        <div class="upcoming-grid" id="upcomingGrid"></div>
+    </div>
+</section>
+
+<!-- ALL BIRTHDAYS -->
+
+<section class="page" id="all">
+    <div class="content-card">
+        <div class="section-header">
+            <h2>👥 All Birthdays</h2>
+            <button class="primary-btn" onclick="openModal()">+ Add Birthday</button>
+        </div>
+        <div class="controls">
+            <input id="searchAll" placeholder="🔍 Search name or relationship..." oninput="renderList('allList','searchAll')">
+        </div>
+        <div id="allList"></div>
+    </div>
+</section>
+
+<!-- THEMES -->
+
+<section class="page" id="themes">
+    <div class="content-card">
+        <div class="section-header">
+            <h2>🎨 Choose Your Theme</h2>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px">
+            Select a design that you like. Your choice will be saved automatically.
+        </p>
+        <div class="theme-grid" id="themeGrid"></div>
+    </div>
+</section>
+
+<!-- BACKUP -->
+
+<section class="page" id="backup">
+    <div class="content-card">
+        <div class="section-header">
+            <h2>💾 Backup & Restore</h2>
+        </div>
+
+        <div class="notice info">
+            Your birthday information is saved in this browser. Export a backup regularly to keep a separate copy.
+        </div>
+
+        <div style="display:grid;gap:14px;max-width:500px">
+            <div>
+                <h3 style="margin-bottom:8px">📤 Export Birthday Data</h3>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+                    Download your birthday list, notes, and profile photos as a JSON file.
+                </p>
+                <button class="primary-btn" onclick="exportData()">Download JSON Backup</button>
+            </div>
+
+            <hr style="border:0;border-top:1px solid var(--border)">
+
+            <div>
+                <h3 style="margin-bottom:8px">📥 Import Birthday Data</h3>
+                <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+                    Restore a previously exported JSON backup. Imported records are added to your current list.
+                </p>
+                <input type="file" id="importFile" accept=".json,application/json">
+                <button class="primary-btn" style="margin-top:12px" onclick="importData()">
+                    Import JSON Backup
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+
+<div class="modal-bg" id="modalBg">
+<div class="modal">
+
+    <h2 id="modalTitle">Add Birthday 🎂</h2>
+
+    <form id="birthdayForm">
+
+        <div class="form-group">
+            <label>Profile Photo</label>
+            <div class="photo-preview" id="photoPreview">👤</div>
+            <label class="file-label" for="photo">📷 Choose Photo</label>
+            <input type="file" id="photo" accept="image/*">
+            <button type="button" class="secondary-btn" style="margin-top:8px" onclick="removePhoto()">
+                Remove Photo
+            </button>
+        </div>
+
+        <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="name" placeholder="Enter full name" required maxlength="100">
+        </div>
+
+        <div class="form-group">
+            <label>Birthday *</label>
+            <input type="date" id="birthday" required>
+        </div>
+
+        <div class="form-group">
+            <label>Relationship / Note</label>
+            <input type="text" id="note" placeholder="Friend, Family, Classmate..." maxlength="150">
+        </div>
+
+        <div class="modal-buttons">
+            <button type="button" class="cancel-btn secondary-btn" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="save-btn primary-btn">Save Birthday</button>
+        </div>
+
+    </form>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ======================================
+// DATA AND STORAGE
+// ======================================
+
+let birthdays = [];
+
+try {
+    const saved = JSON.parse(localStorage.getItem("birthdayRecords") || "[]");
+    birthdays = Array.isArray(saved) ? saved.filter(validPerson) : [];
+} catch {
+    birthdays = [];
+}
+
+let editId = null;
+let currentPhoto = "";
+let calendarDate = new Date();
+let selectedCalendarDate = null;
+
+const themes = [
+    {
+        name:"Purple Dream",
+        primary:"#667de0",
+        secondary:"#9a79dc",
+        bg:"#f5f6fc",
+        surface:"#ffffff",
+        text:"#28334a",
+        sidebar:"#29365d"
+    },
+    {
+        name:"Pink Blossom",
+        primary:"#e879a5",
+        secondary:"#f2a6bd",
+        bg:"#fff3f7",
+        surface:"#ffffff",
+        text:"#553348",
+        sidebar:"#713e61"
+    },
+    {
+        name:"Ocean Blue",
+        primary:"#318bbd",
+        secondary:"#50b5c7",
+        bg:"#edf7fb",
+        surface:"#ffffff",
+        text:"#24445b",
+        sidebar:"#20445d"
+    },
+    {
+        name:"Mint Green",
+        primary:"#43a889",
+        secondary:"#79c6a4",
+        bg:"#effaf4",
+        surface:"#ffffff",
+        text:"#284b3e",
+        sidebar:"#245746"
+    },
+    {
+        name:"Sunset Orange",
+        primary:"#e78a49",
+        secondary:"#edb36e",
+        bg:"#fff7ef",
+        surface:"#ffffff",
+        text:"#593e2e",
+        sidebar:"#75472e"
+    },
+    {
+        name:"Dark Mode",
+        primary:"#9279e8",
+        secondary:"#6656b5",
+        bg:"#171a2b",
+        surface:"#24283e",
+        text:"#f0efff",
+        sidebar:"#101326"
+    }
+];
+
+// ======================================
+// HELPERS
+// ======================================
+
+function validPerson(p) {
+    return p && typeof p === "object" &&
+        typeof p.name === "string" &&
+        typeof p.birthday === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(p.birthday) &&
+        !isNaN(new Date(p.birthday + "T00:00:00").getTime());
+}
+
+function saveData() {
+    try {
+        localStorage.setItem("birthdayRecords", JSON.stringify(birthdays));
+        return true;
+    } catch (error) {
+        alert("Unable to save data. Your browser storage may be full. Export a backup or remove some large photos.");
+        return false;
+    }
+}
+
+function localDate(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function dateKey(date) {
+    return [
+        date.getFullYear(),
+        String(date.getMonth()+1).padStart(2,"0"),
+        String(date.getDate()).padStart(2,"0")
+    ].join("-");
+}
+
+function parseDate(value) {
+    const [y,m,d] = value.split("-").map(Number);
+    return new Date(y,m-1,d);
+}
+
+function getNextBirthday(birthday) {
+    const birth = parseDate(birthday);
+    const today = localDate(new Date());
+    let year = today.getFullYear();
+
+    function makeDate(y) {
+        // February 29 birthdays are observed on February 28
+        // in years that are not leap years.
+        const day = birth.getMonth() === 1 && birth.getDate() === 29
+            ? Math.min(29, new Date(y,1,29).getMonth() === 1 ? 29 : 28)
+            : birth.getDate();
+
+        return new Date(y,birth.getMonth(),day);
+    }
+
+    let next = makeDate(year);
+
+    if(next < today) {
+        year++;
+        next = makeDate(year);
+    }
+
+    return next;
+}
+
+function getDays(birthday) {
+    return Math.round(
+        (getNextBirthday(birthday)-localDate(new Date()))/86400000
+    );
+}
+
+function getAge(birthday) {
+    const birth = parseDate(birthday);
+    return getNextBirthday(birthday).getFullYear()-birth.getFullYear();
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString("en-US",{
+        month:"long",
+        day:"numeric",
+        year:"numeric"
+    });
+}
+
+function sortedBirthdays() {
+    return [...birthdays].sort((a,b)=>
+        getDays(a.birthday)-getDays(b.birthday) ||
+        a.name.localeCompare(b.name)
+    );
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[c]);
+}
+
+function avatarHTML(person) {
+    return person.photo
+        ? `<div class="avatar"><img src="${person.photo}" alt=""></div>`
+        : `<div class="avatar">🎂</div>`;
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.style.display = "block";
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(()=>toast.style.display="none",3000);
+}
+
+// ======================================
+// NAVIGATION
+// ======================================
+
+const pageNames = {
+    dashboard:"Birthday Dashboard 🎂",
+    calendar:"Birthday Calendar 📅",
+    upcoming:"Upcoming Birthdays 🎉",
+    all:"All Birthdays 👥",
+    themes:"Color Themes 🎨",
+    backup:"Backup & Restore 💾"
+};
+
+function showPage(page) {
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+
+    document.getElementById(page).classList.add("active");
+
+    const nav = document.querySelector(`[data-page="${page}"]`);
+    if(nav) nav.classList.add("active");
+
+    document.getElementById("pageTitle").textContent = pageNames[page];
+
+    if(page==="calendar") renderCalendar();
+    if(page==="themes") renderThemes();
+    if(page==="upcoming") renderUpcoming();
+
+    if(page==="all") renderList("allList","searchAll");
+
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.querySelectorAll(".nav-item").forEach(item=>{
+    item.addEventListener("click",()=>showPage(item.dataset.page));
+});
+
+// ======================================
+// MODAL AND PROFILE PHOTOS
+// ======================================
+
+function openModal(id=null) {
+    editId = id;
+    currentPhoto = "";
+
+    document.getElementById("birthdayForm").reset();
+    updatePhotoPreview();
+
+    if(id!==null) {
+        const person = birthdays.find(b=>b.id===id);
+        if(!person) return;
+
+        document.getElementById("modalTitle").textContent="Edit Birthday ✏️";
+        document.getElementById("name").value=person.name;
+        document.getElementById("birthday").value=person.birthday;
+        document.getElementById("note").value=person.note||"";
+
+        currentPhoto=person.photo||"";
+        updatePhotoPreview();
+    } else {
+        document.getElementById("modalTitle").textContent="Add Birthday 🎂";
+    }
+
+    document.getElementById("modalBg").style.display="flex";
+}
+
+function closeModal() {
+    document.getElementById("modalBg").style.display="none";
+    editId=null;
+    currentPhoto="";
+}
+
+function updatePhotoPreview() {
+    const preview=document.getElementById("photoPreview");
+
+    if(currentPhoto) {
+        preview.innerHTML="";
+        const img=document.createElement("img");
+        img.src=currentPhoto;
+        img.alt="Profile preview";
+        preview.appendChild(img);
+    } else {
+        preview.textContent="👤";
+    }
+}
+
+function removePhoto() {
+    currentPhoto="";
+    document.getElementById("photo").value="";
+    updatePhotoPreview();
+}
+
+document.getElementById("photo").addEventListener("change",function() {
+    const file=this.files[0];
+    if(!file) return;
+
+    if(!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        this.value="";
+        return;
+    }
+
+    if(file.size>1024*1024) {
+        alert("Please choose a photo smaller than 1 MB to help prevent storage problems.");
+        this.value="";
+        return;
+    }
+
+    const reader=new FileReader();
+
+    reader.onload=()=>{
+        currentPhoto=reader.result;
+        updatePhotoPreview();
+    };
+
+    reader.onerror=()=>alert("Unable to read the selected photo.");
+    reader.readAsDataURL(file);
+});
+
+// ======================================
+// ADD AND EDIT
+// ======================================
+
+document.getElementById("birthdayForm").addEventListener("submit",function(e) {
+    e.preventDefault();
+
+    const name=document.getElementById("name").value.trim();
+    const birthday=document.getElementById("birthday").value;
+    const note=document.getElementById("note").value.trim();
+
+    if(!name||!birthday) return;
+
+    const birth=parseDate(birthday);
+
+    if(dateKey(birth)!==birthday) {
+        alert("Please enter a valid birthday.");
+        return;
+    }
+
+    if(birth>localDate(new Date())) {
+        alert("Please enter a birthday that is today or earlier.");
+        return;
+    }
+
+    let oldData=editId!==null
+        ? birthdays.find(b=>b.id===editId)
+        : null;
+
+    if(editId!==null) {
+        const index=birthdays.findIndex(b=>b.id===editId);
+        if(index===-1) return;
+
+        birthdays[index]={
+            ...birthdays[index],
+            name,birthday,note,photo:currentPhoto
+        };
+    } else {
+        birthdays.push({
+            id:crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()+Math.random(),
+            name,birthday,note,photo:currentPhoto
+        });
+    }
+
+    if(!saveData()) {
+        if(editId!==null && oldData) {
+            const index=birthdays.findIndex(b=>b.id===editId);
+            birthdays[index]=oldData;
+        } else {
+            birthdays.pop();
+        }
+        return;
+    }
+
+    closeModal();
+    render();
+    showToast(editId===null ? "Birthday added successfully! 🎉" : "Birthday updated!");
+});
+
+// ======================================
+// DELETE
+// ======================================
+
+function deleteBirthday(id) {
+    if(!confirm("Are you sure you want to delete this birthday?")) return;
+
+    const old=birthdays;
+    birthdays=birthdays.filter(b=>b.id!==id);
+
+    if(!saveData()) {
+        birthdays=old;
+        return;
+    }
+
+    render();
+    showToast("Birthday deleted.");
+}
+
+// ======================================
+// BIRTHDAY LIST
+// ======================================
+
+function renderList(elementId,searchId) {
+    const list=document.getElementById(elementId);
+    const search=document.getElementById(searchId).value.toLowerCase();
+
+    const filtered=sortedBirthdays().filter(b=>
+        b.name.toLowerCase().includes(search) ||
+        (b.note||"").toLowerCase().includes(search)
+    );
+
+    list.innerHTML="";
+
+    if(!filtered.length) {
+        list.innerHTML=`<div class="empty"><div>🎂</div>No birthdays found.</div>`;
+        return;
+    }
+
+    filtered.forEach(person=>{
+        const days=getDays(person.birthday);
+        const message=days===0 ? "🎉 Birthday Today!" :
+            days===1 ? "Tomorrow!" : days+" days left";
+
+        const item=document.createElement("div");
+        item.className="birthday-item";
+
+        const info=document.createElement("div");
+        info.className="birthday-info";
+        info.innerHTML=avatarHTML(person)+`
+            <div>
+                <div class="person-name">${escapeHTML(person.name)}</div>
+                <div class="person-date">${escapeHTML(formatDate(parseDate(person.birthday)))}${person.note ? " • "+escapeHTML(person.note):""}</div>
+            </div>`;
+
+        const right=document.createElement("div");
+        right.className="right-info";
+        right.innerHTML=`
+            <div class="days">${message}</div>
+            <div class="age">Turning ${getAge(person.birthday)}</div>`;
+
+        const actions=document.createElement("div");
+        actions.className="actions";
+
+        const edit=document.createElement("button");
+        edit.className="action-btn";
+        edit.textContent="✏️";
+        edit.title="Edit";
+        edit.onclick=()=>openModal(person.id);
+
+        const del=document.createElement("button");
+        del.className="action-btn delete-btn";
+        del.textContent="🗑️";
+        del.title="Delete";
+        del.onclick=()=>deleteBirthday(person.id);
+
+        actions.append(edit,del);
+        item.append(info,right,actions);
+        list.appendChild(item);
+    });
+}
+
+// ======================================
+// UPCOMING BIRTHDAYS
+// ======================================
+
+function renderUpcoming() {
+    const grid=document.getElementById("upcomingGrid");
+    grid.innerHTML="";
+
+    const sorted=sortedBirthdays();
+
+    if(!sorted.length) {
+        grid.innerHTML=`<div class="empty">🎂<br>No upcoming birthdays yet.</div>`;
+        return;
+    }
+
+    sorted.forEach(person=>{
+        const days=getDays(person.birthday);
+
+        const card=document.createElement("div");
+        card.className="upcoming-card";
+
+        const details=document.createElement("div");
+        details.innerHTML=`
+            <div class="person-name">${escapeHTML(person.name)}</div>
+            <div class="person-date">${escapeHTML(formatDate(getNextBirthday(person.birthday)))}</div>
+            <div class="days">${days===0?"🎉 Today!":days===1?"Tomorrow":days+" days left"}</div>
+        `;
+
+        const avatar=document.createElement("div");
+        avatar.innerHTML=avatarHTML(person);
+
+        card.append(avatar,details);
+        grid.appendChild(card);
+    });
+}
+
+function renderDashboardUpcoming() {
+    const box=document.getElementById("dashboardUpcoming");
+    const next=sortedBirthdays().slice(0,5);
+
+    box.innerHTML="";
+
+    if(!next.length) {
+        box.innerHTML=`<div class="empty">No birthdays added yet.</div>`;
+        return;
+    }
+
+    next.forEach(person=>{
+        const days=getDays(person.birthday);
+
+        const row=document.createElement("div");
+        row.className="birthday-item";
+        row.innerHTML=`
+            <div class="birthday-info">
+                ${avatarHTML(person)}
+                <div>
+                    <div class="person-name">${escapeHTML(person.name)}</div>
+                    <div class="person-date">${escapeHTML(formatDate(getNextBirthday(person.birthday)))}</div>
+                </div>
+            </div>
+            <div class="days">${days===0?"🎉 Today!":days===1?"Tomorrow":days+" days left"}</div>
+        `;
+        box.appendChild(row);
+    });
+}
+
+// ======================================
+// CALENDAR
+// ======================================
+
+function changeMonth(amount) {
+    calendarDate=new Date(
+        calendarDate.getFullYear(),
+        calendarDate.getMonth()+amount,
+        1
+    );
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const year=calendarDate.getFullYear();
+    const month=calendarDate.getMonth();
+
+    document.getElementById("calendarMonth").textContent=
+        calendarDate.toLocaleDateString("en-US",{month:"long",year:"numeric"});
+
+    const grid=document.getElementById("calendarGrid");
+    grid.innerHTML="";
+
+    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(day=>{
+        const el=document.createElement("div");
+        el.className="calendar-day-name";
+        el.textContent=day;
+        grid.appendChild(el);
+    });
+
+    const firstDay=new Date(year,month,1).getDay();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const previousMonthDays=new Date(year,month,0).getDate();
+
+    const today=localDate(new Date());
+
+    for(let i=0;i<42;i++) {
+        let dayNumber;
+        let cellMonth=month;
+        let cellYear=year;
+        let other=false;
+
+        if(i<firstDay) {
+            dayNumber=previousMonthDays-firstDay+i+1;
+            cellMonth=month-1;
+            other=true;
+        } else if(i>=firstDay+daysInMonth) {
+            dayNumber=i-firstDay-daysInMonth+1;
+            cellMonth=month+1;
+            other=true;
+        } else {
+            dayNumber=i-firstDay+1;
+        }
+
+        const cellDate=new Date(cellYear,cellMonth,dayNumber);
+        const cellMonthActual=cellDate.getMonth();
+
+        const cell=document.createElement("div");
+        cell.className="calendar-day";
+        if(other) cell.classList.add("other");
+        if(dateKey(cellDate)===dateKey(today)) cell.classList.add("today-day");
+        if(selectedCalendarDate===dateKey(cellDate)) cell.classList.add("selected");
+
+        const number=document.createElement("div");
+        number.className="day-number";
+        number.textContent=dayNumber;
+        cell.appendChild(number);
+
+        const people=birthdays.filter(b=>{
+            const birth=parseDate(b.birthday);
+            return birth.getMonth()===cellMonthActual &&
+                   birth.getDate()===dayNumber;
+        });
+
+        people.slice(0,2).forEach(person=>{
+            const event=document.createElement("div");
+            event.className="calendar-event";
+            event.textContent=person.name;
+            event.title=person.name;
+            cell.appendChild(event);
+        });
+
+        if(people.length>2) {
+            const more=document.createElement("div");
+            more.className="calendar-more";
+            more.textContent="+"+(people.length-2)+" more";
+            cell.appendChild(more);
+        }
+
+        cell.onclick=()=>{
+            selectedCalendarDate=dateKey(cellDate);
+            renderCalendar();
+            showSelectedDate(cellDate,people);
+        };
+
+        grid.appendChild(cell);
+    }
+
+    if(selectedCalendarDate) {
+        showSelectedDate(parseDate(selectedCalendarDate));
+    } else {
+        document.getElementById("selectedDate").textContent=
+            "Select a date to view birthdays.";
+    }
+}
+
+function showSelectedDate(date,people=null) {
+    const box=document.getElementById("selectedDate");
+
+    if(!people) {
+        people=birthdays.filter(b=>{
+            const birth=parseDate(b.birthday);
+            return birth.getMonth()===date.getMonth() &&
+                   birth.getDate()===date.getDate();
+        });
+    }
+
+    box.innerHTML=`<strong>🎂 ${escapeHTML(formatDate(date))}</strong>`;
+
+    if(!people.length) {
+        box.innerHTML+="<p style='margin-top:8px;color:var(--muted);font-size:13px'>No birthdays on this date.</p>";
+        return;
+    }
+
+    people.forEach(person=>{
+        const p=document.createElement("p");
+        p.style.marginTop="9px";
+        p.style.fontSize="13px";
+        p.textContent="🎉 "+person.name;
+        box.appendChild(p);
+    });
+}
+
+// ======================================
+// BIRTHDAY NOTIFICATIONS
+// ======================================
+
+function getAlerts() {
+    return sortedBirthdays().filter(b=>getDays(b.birthday)<=1);
+}
+
+function renderNotifications() {
+    const box=document.getElementById("notificationList");
+    const alerts=getAlerts();
+
+    box.innerHTML="";
+
+    if(!alerts.length) {
+        box.innerHTML=`<div class="empty">🔔<br>No birthdays today or tomorrow.</div>`;
+        return;
+    }
+
+    alerts.forEach(person=>{
+        const days=getDays(person.birthday);
+        const item=document.createElement("div");
+        item.className="birthday-item";
+        item.innerHTML=`
+            <div class="birthday-info">
+                ${avatarHTML(person)}
+                <div>
+                    <div class="person-name">${escapeHTML(person.name)}</div>
+                    <div class="person-date">${days===0?"Celebrating today!":"Birthday is tomorrow!"}</div>
+                </div>
+            </div>
+            <div class="days">${days===0?"🎉 TODAY":"⏰ TOMORROW"}</div>
+        `;
+        box.appendChild(item);
+    });
+}
+
+async function enableNotifications() {
+    if(!("Notification" in window)) {
+        alert("Your browser does not support notifications.");
+        return;
+    }
+
+    if(!window.isSecureContext) {
+        alert("Browser notifications require a secure connection, such as HTTPS or localhost. The in-app alerts will still work.");
+        return;
+    }
+
+    try {
+        const permission=await Notification.requestPermission();
+
+        if(permission!=="granted") {
+            showToast("Notification permission was not granted.");
+            return;
+        }
+
+        showToast("Browser notifications enabled!");
+
+        const alerts=getAlerts();
+
+        if(!alerts.length) {
+            new Notification("Birthday Tracker",{
+                body:"Notifications are enabled. No birthdays today or tomorrow."
+            });
+        } else {
+            alerts.forEach(person=>{
+                const days=getDays(person.birthday);
+                new Notification("Birthday Reminder 🎂",{
+                    body:days===0
+                        ? person.name+" has a birthday today!"
+                        : person.name+" has a birthday tomorrow!"
+                });
+            });
+        }
+
+    } catch(error) {
+        alert("Unable to enable browser notifications.");
+    }
+}
+
+// ======================================
+// EXPORT JSON
+// ======================================
+
+function exportData() {
+    const backup={
+        app:"Birthday Tracker",
+        version:2,
+        exportedAt:new Date().toISOString(),
+        birthdays:birthdays
+    };
+
+    const blob=new Blob(
+        [JSON.stringify(backup,null,2)],
+        {type:"application/json"}
+    );
+
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+
+    a.href=url;
+    a.download="birthday-backup-"+dateKey(new Date())+".json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+    showToast("Birthday backup downloaded!");
+}
+
+// ======================================
+// IMPORT JSON
+// ======================================
+
+function importData() {
+    const input=document.getElementById("importFile");
+    const file=input.files[0];
+
+    if(!file) {
+        alert("Please select a JSON backup file first.");
+        return;
+    }
+
+    const reader=new FileReader();
+
+    reader.onload=()=>{
+        try {
+            const data=JSON.parse(reader.result);
+            const imported=Array.isArray(data)
+                ? data
+                : data.birthdays;
+
+            if(!Array.isArray(imported)) {
+                throw new Error("Invalid backup format");
+            }
+
+            const clean=imported.filter(validPerson);
+
+            if(!clean.length) {
+                alert("No valid birthday records were found.");
+                return;
+            }
+
+            const existingIds=new Set(birthdays.map(b=>String(b.id)));
+            const existingKeys=new Set(
+                birthdays.map(b=>b.name.toLowerCase()+"|"+b.birthday)
+            );
+
+            const additions=clean
+                .filter(p=>!existingKeys.has(p.name.toLowerCase()+"|"+p.birthday))
+                .map(p=>{
+                    let id=String(p.id||Date.now()+Math.random());
+                    while(existingIds.has(id)) {
+                        id=Date.now().toString()+Math.random().toString(16).slice(2);
+                    }
+                    existingIds.add(id);
+                    return {
+                        id,
+                        name:p.name,
+                        birthday:p.birthday,
+                        note:typeof p.note==="string"?p.note:"",
+                        photo:typeof p.photo==="string" &&
+                            p.photo.startsWith("data:image/") &&
+                            p.photo.length<1500000 ? p.photo : ""
+                    };
+                });
+
+            if(!additions.length) {
+                alert("All imported birthdays already exist in your list.");
+                return;
+            }
+
+            if(!confirm("Import "+additions.length+" new birthday record(s)? Existing records will be kept.")) return;
+
+            const old=birthdays;
+            birthdays=[...birthdays,...additions];
+
+            if(!saveData()) {
+                birthdays=old;
+                return;
+            }
+
+            input.value="";
+            render();
+            showToast(additions.length+" birthday records imported!");
+
+        } catch(error) {
+            alert("Invalid JSON file. Please select a Birthday Tracker backup.");
+        }
+    };
+
+    reader.onerror=()=>alert("Unable to read the selected file.");
+    reader.readAsText(file);
+}
+
+// ======================================
+// THEMES
+// ======================================
+
+function applyTheme(name) {
+    const theme=themes.find(t=>t.name===name);
+    if(!theme) return;
+
+    const root=document.documentElement;
+
+    Object.entries({
+        "--primary":theme.primary,
+        "--secondary":theme.secondary,
+        "--bg":theme.bg,
+        "--surface":theme.surface,
+        "--text":theme.text,
+        "--sidebar":theme.sidebar
+    }).forEach(([key,value])=>root.style.setProperty(key,value));
+
+    localStorage.setItem("birthdayTheme",name);
+    renderThemes();
+}
+
+function renderThemes() {
+    const grid=document.getElementById("themeGrid");
+    const current=localStorage.getItem("birthdayTheme")||"Purple Dream";
+
+    grid.innerHTML="";
+
+    themes.forEach(theme=>{
+        const card=document.createElement("button");
+        card.className="theme-option"+(theme.name===current?" selected":"");
+
+        const colors=document.createElement("div");
+        colors.className="theme-colors";
+
+        [theme.primary,theme.secondary,theme.bg,theme.sidebar].forEach(color=>{
+            const dot=document.createElement("span");
+            dot.className="theme-dot";
+            dot.style.background=color;
+            colors.appendChild(dot);
+        });
+
+        const name=document.createElement("div");
+        name.style.fontWeight="600";
+        name.style.fontSize="12px";
+        name.textContent=theme.name;
+
+        card.append(colors,name);
+        card.onclick=()=>applyTheme(theme.name);
+
+        grid.appendChild(card);
+    });
+}
+
+function loadTheme() {
+    const saved=localStorage.getItem("birthdayTheme")||"Purple Dream";
+    const theme=themes.find(t=>t.name===saved)||themes[0];
+
+    const root=document.documentElement;
+
+    root.style.setProperty("--primary",theme.primary);
+    root.style.setProperty("--secondary",theme.secondary);
+    root.style.setProperty("--bg",theme.bg);
+    root.style.setProperty("--surface",theme.surface);
+    root.style.setProperty("--text",theme.text);
+    root.style.setProperty("--sidebar",theme.sidebar);
+}
+
+// ======================================
+// MAIN RENDER
+// ======================================
+
+function render() {
+    const now=new Date();
+    const month=now.getMonth();
+
+    document.getElementById("today").textContent=
+        now.toLocaleDateString("en-US",{
+            weekday:"long",
+            month:"long",
+            day:"numeric",
+            year:"numeric"
+        });
+
+    document.getElementById("total").textContent=birthdays.length;
+
+    document.getElementById("thisMonth").textContent=
+        birthdays.filter(b=>parseDate(b.birthday).getMonth()===month).length;
+
+    document.getElementById("todayCount").textContent=
+        birthdays.filter(b=>getDays(b.birthday)===0).length;
+
+    const next=sortedBirthdays()[0];
+
+    if(next) {
+        const days=getDays(next.birthday);
+        document.getElementById("nextName").textContent=next.name;
+        document.getElementById("nextDate").textContent=
+            days===0?"🎉 Celebrating today!":
+            "Birthday on "+formatDate(getNextBirthday(next.birthday));
+        document.getElementById("nextDays").textContent=days;
+    } else {
+        document.getElementById("nextName").textContent="No birthdays yet";
+        document.getElementById("nextDate").textContent="Add a birthday to get started.";
+        document.getElementById("nextDays").textContent="--";
+    }
+
+    renderList("dashboardList","searchDashboard");
+    renderDashboardUpcoming();
+    renderNotifications();
+    renderUpcoming();
+
+    if(document.getElementById("calendar").classList.contains("active")) {
+        renderCalendar();
+    }
+
+    renderThemes();
+
+    const alerts=getAlerts();
+    const notice=document.getElementById("noticeArea");
+
+    if(alerts.some(b=>getDays(b.birthday)===0)) {
+        notice.innerHTML=`<div class="notice">🎉 You have a birthday to celebrate today!</div>`;
+    } else if(alerts.length) {
+        notice.innerHTML=`<div class="notice info">🔔 You have ${alerts.length} birthday reminder(s) for today or tomorrow.</div>`;
+    } else {
+        notice.innerHTML="";
+    }
+}
+
+// ======================================
+// START APPLICATION
+// ======================================
+
+loadTheme();
+render();
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+            .then(() => console.log("App ready!"))
+            .catch(error => console.error("App error:", error));
+    });
+}
+</script>
+
+</body>
+</html>
